@@ -75,6 +75,34 @@ button { font-family: var(--oq-sans); }
   transition: transform .2s, box-shadow .2s;
 }
 .oq-subscribe:hover { transform: translateY(-1px); box-shadow: 0 6px 0 -2px var(--oq-ink); }
+.oq-header-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+/* Hamburger — hidden on desktop, shown on mobile */
+.oq-hamburger {
+  display: none; align-items: center; justify-content: center; width: 44px; height: 44px;
+  background: transparent; border: 1px solid var(--oq-border-soft); border-radius: 12px; cursor: pointer; padding: 0;
+}
+.oq-hamburger:hover { background: #ECE2CB; }
+
+/* Mobile slide-down menu */
+.oq-mobile-menu {
+  display: none; overflow: hidden; max-height: 0; opacity: 0;
+  border-top: 1px solid var(--oq-border-soft); background: #F9FAFC;
+  transition: max-height .3s ease, opacity .25s ease;
+}
+.oq-mobile-menu.is-open { max-height: 520px; opacity: 1; }
+.mm-nav { display: flex; flex-direction: column; padding: 8px 16px 4px; }
+.mm-link {
+  font-size: 16px; font-weight: 500; color: var(--oq-body); text-decoration: none;
+  padding: 14px 12px; border-radius: 10px; cursor: pointer; border-bottom: 1px solid var(--oq-border-soft);
+}
+.mm-link:last-child { border-bottom: none; }
+.mm-link.is-active { color: var(--oq-ink); font-weight: 600; }
+.mm-subscribe {
+  margin: 8px 16px 18px; font-size: 15px; font-weight: 700; color: var(--oq-ink);
+  background: var(--oq-accent); border: 1px solid var(--oq-ink); padding: 14px 18px;
+  border-radius: 999px; cursor: pointer; width: calc(100% - 32px);
+}
 
 /* ============ SHARED ============ */
 .view { animation: oqFade .5s ease both; }
@@ -396,10 +424,14 @@ button { font-family: var(--oq-sans); }
   .grid-3 { grid-template-columns: repeat(2, 1fr); }
   .oq-footer-top { grid-template-columns: 1fr 1fr; }
   .oq-nav { display: none; }
+  .oq-hamburger { display: flex; }
+  .oq-mobile-menu { display: block; }
+  .oq-header .oq-subscribe { display: none; }
 }
 @media (max-width: 560px) {
   .grid-3 { grid-template-columns: 1fr; }
   .oq-footer-top { grid-template-columns: 1fr; }
   .oq-header-inner { height: 80px; }
-  .oq-logo-btn img { height: 64px; }
+  .oq-logo-btn img { height: 60px; }
+  .brand-hero-inner { padding: 60px 22px 64px; }
 }

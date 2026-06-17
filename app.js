@@ -110,7 +110,7 @@
 
   // ---- App state ---------------------------------------------------------
   // tintSections defaults OFF (per the design's baked default).
-  var state = { view: 'home', activeBlog: 'news', currentId: 'phia', email: '', subscribed: false, tintSections: false };
+  var state = { view: 'home', activeBlog: 'news', currentId: 'phia', email: '', subscribed: false, tintSections: false, menuOpen: false };
 
   var app = document.getElementById('app');
 
@@ -138,9 +138,9 @@
   }
 
   // ---- Navigation actions ------------------------------------------------
-  function goHome() { state.view = 'home'; render(); scrollTop(); }
-  function openBlog(slug) { state.view = 'blog'; state.activeBlog = slug; render(); scrollTop(); }
-  function openArticle(id) { state.view = 'article'; state.currentId = id; render(); scrollTop(); }
+  function goHome() { state.view = 'home'; state.menuOpen = false; render(); scrollTop(); }
+  function openBlog(slug) { state.view = 'blog'; state.activeBlog = slug; state.menuOpen = false; render(); scrollTop(); }
+  function openArticle(id) { state.view = 'article'; state.currentId = id; state.menuOpen = false; render(); scrollTop(); }
   function scrollToNews() {
     try {
       var el = document.getElementById('oq-newsletter');
@@ -342,18 +342,31 @@
       { label: 'ASOM', slug: 'asom' },
       { label: 'Sports Cards', slug: 'cards' }
     ];
-    var nav = navDefs.map(function (d) {
+    function linkFor(d, extraClass) {
       var active = d.home ? state.view === 'home' : (state.view === 'blog' && state.activeBlog === d.slug);
       var attrs = d.home ? 'data-act="home"' : 'data-act="blog" data-slug="' + d.slug + '"';
-      return '<a ' + attrs + ' class="' + (active ? 'is-active' : '') + '">' + esc(d.label) + '</a>';
-    }).join('');
+      return '<a ' + attrs + ' class="' + (extraClass || '') + (active ? ' is-active' : '') + '">' + esc(d.label) + '</a>';
+    }
+    var nav = navDefs.map(function (d) { return linkFor(d); }).join('');
+    var mobileNav = navDefs.map(function (d) { return linkFor(d, 'mm-link'); }).join('');
+    var open = state.menuOpen;
+    var burger = open
+      ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#211C14" stroke-width="2" stroke-linecap="round"/></svg>'
+      : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="#211C14" stroke-width="2" stroke-linecap="round"/></svg>';
 
     return '' +
       '<header class="oq-header">' +
         '<div class="oq-header-inner">' +
-          '<button class="oq-logo-btn" data-act="home" aria-label="Online Queso home"><img src="assets/oq-logo.jpg" alt="Online Queso"></button>' +
+          '<button class="oq-logo-btn" data-act="home" aria-label="Online Queso home"><img src="assets/online-queso-light.svg" alt="Online Queso"></button>' +
           '<nav class="oq-nav">' + nav + '</nav>' +
-          '<button class="oq-subscribe" data-act="subscribe-scroll">Subscribe</button>' +
+          '<div class="oq-header-actions">' +
+            '<button class="oq-subscribe" data-act="subscribe-scroll">Subscribe</button>' +
+            '<button class="oq-hamburger" data-act="toggle-menu" aria-label="Toggle menu" aria-expanded="' + (open ? 'true' : 'false') + '">' + burger + '</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="oq-mobile-menu' + (open ? ' is-open' : '') + '">' +
+          '<nav class="mm-nav">' + mobileNav + '</nav>' +
+          '<button class="mm-subscribe" data-act="subscribe-scroll">Subscribe</button>' +
         '</div>' +
       '</header>';
   }
@@ -419,7 +432,7 @@
       '<footer class="oq-footer">' +
         '<div class="oq-footer-top">' +
           '<div class="oq-footer-brand">' +
-            '<button class="oq-logo-btn" data-act="home" aria-label="Online Queso home"><img src="assets/oq-logo.jpg" alt="Online Queso"></button>' +
+            '<button class="oq-logo-btn" data-act="home" aria-label="Online Queso home"><img src="assets/online-queso-light.svg" alt="Online Queso"></button>' +
             '<p>Digestible and delicious. A non-standard approach inside the minds of the best and brightest in eCommerce.</p>' +
           '</div>' +
           '<div class="oq-footer-col"><span class="col-head">Read & Explore</span>' + linkList(read) + '</div>' +
@@ -494,6 +507,19 @@
       }
     }
 
+    // Touch / mobile devices have no cursor, so just run the effect automatically.
+    var mm = window.matchMedia;
+    var noHover = !mm
+      || mm('(hover: none)').matches
+      || mm('(pointer: coarse)').matches
+      || window.innerWidth <= 880;
+    if (noHover) {
+      spawnOne();
+      cheeseTimer = setInterval(spawnOne, 200);
+      return;
+    }
+
+    // Desktop: only pop holes while the cursor is inside the hero.
     hero.addEventListener('mouseenter', function () {
       if (cheeseTimer) return;
       spawnOne();
@@ -509,10 +535,14 @@
     var t = e.target.closest('[data-act]');
     if (!t) return;
     var act = t.getAttribute('data-act');
-    if (act === 'home') { goHome(); }
+    if (act === 'toggle-menu') { state.menuOpen = !state.menuOpen; render(); }
+    else if (act === 'home') { goHome(); }
     else if (act === 'blog') { openBlog(t.getAttribute('data-slug')); }
     else if (act === 'article') { openArticle(t.getAttribute('data-id')); }
-    else if (act === 'subscribe-scroll') { scrollToNews(); }
+    else if (act === 'subscribe-scroll') {
+      if (state.menuOpen) { state.menuOpen = false; render(); }
+      scrollToNews();
+    }
     else if (act === 'scroll') {
       var target = document.getElementById(t.getAttribute('data-target'));
       if (target) { window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 20, behavior: 'smooth' }); }
