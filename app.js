@@ -204,7 +204,19 @@
 
     return '' +
       '<div class="view">' +
-        '<section class="home-hero">' +
+        '<section class="brand-hero">' +
+          '<div class="cheese-holes" id="oq-holes"></div>' +
+          '<div class="brand-hero-inner">' +
+            '<span class="eyebrow">Online Queso</span>' +
+            '<h1>Digestible &amp; Delicious.</h1>' +
+            '<p class="brand-lead">A non-standard look inside the minds of the best and brightest in eCommerce — tips, tricks, stories, and free advice. Curated by John Roman, entrepreneur and CEO of BattlBox, for anyone in the industry or looking to get in.</p>' +
+            '<div class="brand-cta">' +
+              '<button class="btn-primary" data-act="subscribe-scroll">Subscribe</button>' +
+              '<button class="btn-ghost" data-act="scroll" data-target="oq-latest">Explore stories' + ARROW + '</button>' +
+            '</div>' +
+          '</div>' +
+        '</section>' +
+        '<section class="home-hero" id="oq-latest">' +
           '<div class="eyebrow-row"><span class="eyebrow">Latest Cheese</span><span class="eyebrow-rule"></span></div>' +
           '<div class="hero-grid" data-act="article" data-id="' + esc(featured.id) + '">' +
             '<div class="hero-copy">' +
@@ -429,6 +441,54 @@
 
   function render() {
     app.innerHTML = headerHTML() + '<main>' + currentView() + '</main>' + newsletterHTML() + footerHTML();
+    initCheeseHoles();
+  }
+
+  // Spawn Swiss-cheese holes that trail the cursor across the yellow hero.
+  function initCheeseHoles() {
+    var hero = app.querySelector('.brand-hero');
+    var layer = document.getElementById('oq-holes');
+    if (!hero || !layer) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var last = { x: -999, y: -999 };
+    var active = [];           // live holes: { x, y, r }
+    var GAP = 7;               // minimum spacing between hole edges
+
+    hero.addEventListener('mousemove', function (e) {
+      var rect = hero.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      // Throttle by cursor travel so we don't test on every pixel.
+      if (Math.hypot(x - last.x, y - last.y) < 28) return;
+      last.x = x; last.y = y;
+
+      // Wildly varied size: mostly small, but ~28% are big holes (3x+ larger).
+      var size = Math.random() < 0.28 ? (80 + Math.random() * 95) : (12 + Math.random() * 46);
+      var r = size / 2;
+
+      // Never overlap an existing hole — skip this one if it would touch any.
+      for (var i = 0; i < active.length; i++) {
+        var a = active[i];
+        if (Math.hypot(x - a.x, y - a.y) < r + a.r + GAP) return;
+      }
+
+      var rec = { x: x, y: y, r: r };
+      active.push(rec);
+
+      var hole = document.createElement('span');
+      hole.className = 'cheese-hole';
+      hole.style.left = x + 'px';
+      hole.style.top = y + 'px';
+      hole.style.width = size + 'px';
+      hole.style.height = size + 'px';
+      layer.appendChild(hole);
+      hole.addEventListener('animationend', function () {
+        hole.remove();
+        var idx = active.indexOf(rec);
+        if (idx > -1) active.splice(idx, 1);
+      });
+    });
   }
 
   // ---- Event delegation --------------------------------------------------
@@ -440,6 +500,10 @@
     else if (act === 'blog') { openBlog(t.getAttribute('data-slug')); }
     else if (act === 'article') { openArticle(t.getAttribute('data-id')); }
     else if (act === 'subscribe-scroll') { scrollToNews(); }
+    else if (act === 'scroll') {
+      var target = document.getElementById(t.getAttribute('data-target'));
+      if (target) { window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 20, behavior: 'smooth' }); }
+    }
   });
 
   document.addEventListener('input', function (e) {
