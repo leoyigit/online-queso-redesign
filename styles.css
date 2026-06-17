@@ -52,7 +52,6 @@ button { font-family: var(--oq-sans); }
   position: sticky; top: 0; z-index: 50;
   background: #F9FAFC;
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--oq-border-soft);
 }
 .oq-header-inner {
   max-width: var(--oq-maxw); margin: 0 auto; padding: 0 24px;
@@ -167,6 +166,34 @@ button { font-family: var(--oq-sans); }
   max-width: 920px; margin: 0 auto; padding: 84px 24px 88px;
   display: flex; flex-direction: column; align-items: center; text-align: center; gap: 22px;
 }
+
+/* Decorative holes bitten into the top & bottom edges of the cheese band.
+   Filled with the page background so they read as holes punched in the cheese;
+   the hero clips them, leaving scalloped semicircles along each edge. */
+.cheese-edge { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.edge-hole {
+  position: absolute; border-radius: 50%; aspect-ratio: 1; background: var(--oq-bg);
+  animation: edgePop var(--eh-dur, 6s) ease-in-out var(--eh-del, 0s) infinite;
+}
+/* Each edge hole fades in (full size, no slow grow), holds, then fades out —
+   looping on staggered timing so the cheese edge keeps changing. */
+@keyframes edgePop {
+  0%   { opacity: 0; }
+  8%   { opacity: 1; }
+  52%  { opacity: 1; }
+  60%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+/* Top holes sit against the header, so they match the header colour;
+   bottom holes match the content background below. */
+.eh-tl, .eh-tc, .eh-tr { background: #F9FAFC; }
+.eh-tl { top: 0; left: 6%;  width: clamp(64px, 12vw, 150px); transform: translateY(-46%); --eh-dur: 6.5s; --eh-del: -1.2s; }
+.eh-tc { top: 0; left: 39%; width: clamp(30px, 5vw, 58px);  transform: translateY(-50%); --eh-dur: 4.6s; --eh-del: -3.1s; }
+.eh-tr { top: 0; left: 66%; width: clamp(72px, 13vw, 165px); transform: translateY(-44%); --eh-dur: 7.3s; --eh-del: -4.6s; }
+.eh-bl { bottom: 0; left: 7%;  width: clamp(64px, 12vw, 150px); transform: translateY(46%); --eh-dur: 6.8s; --eh-del: -2.4s; }
+.eh-bc { bottom: 0; left: 63%; width: clamp(32px, 5vw, 62px);  transform: translateY(50%); --eh-dur: 5s;   --eh-del: -0.6s; }
+.eh-br { bottom: 0; left: 87%; width: clamp(72px, 13vw, 165px); transform: translateY(45%); --eh-dur: 7.6s; --eh-del: -5.3s; }
+@media (prefers-reduced-motion: reduce) { .edge-hole { animation: none; opacity: 1; scale: 1; } }
 
 /* Cursor-trailing Swiss-cheese holes */
 .cheese-holes { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }

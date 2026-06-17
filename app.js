@@ -206,6 +206,14 @@
       '<div class="view">' +
         '<section class="brand-hero">' +
           '<div class="cheese-holes" id="oq-holes"></div>' +
+          '<div class="cheese-edge" aria-hidden="true">' +
+            '<span class="edge-hole eh-tl"></span>' +
+            '<span class="edge-hole eh-tc"></span>' +
+            '<span class="edge-hole eh-tr"></span>' +
+            '<span class="edge-hole eh-bl"></span>' +
+            '<span class="edge-hole eh-bc"></span>' +
+            '<span class="edge-hole eh-br"></span>' +
+          '</div>' +
           '<div class="brand-hero-inner">' +
             '<span class="eyebrow">Online Queso</span>' +
             '<h1>Digestible &amp; Delicious.</h1>' +
@@ -471,6 +479,14 @@
 
     var active = [];   // live holes: { x, y, r }
     var GAP = 8;       // minimum spacing between hole edges
+
+    // Seed the decorative edge holes as fixed obstacles so spawned holes never
+    // overlap them (their positions/sizes are read from the rendered layout).
+    var heroRect = hero.getBoundingClientRect();
+    hero.querySelectorAll('.edge-hole').forEach(function (eh) {
+      var b = eh.getBoundingClientRect();
+      active.push({ x: b.left - heroRect.left + b.width / 2, y: b.top - heroRect.top + b.height / 2, r: b.width / 2 });
+    });
 
     function spawnOne() {
       var rect = hero.getBoundingClientRect();
