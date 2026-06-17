@@ -444,50 +444,63 @@
     initCheeseHoles();
   }
 
-  // Spawn Swiss-cheese holes that trail the cursor across the yellow hero.
+  var cheeseTimer = null;
+
+  // While the cursor is anywhere inside the yellow hero, pop Swiss-cheese holes
+  // in at random positions across the band (not a cursor trail). Holes never
+  // overlap, vary wildly in size, and fade out on their own.
   function initCheeseHoles() {
+    if (cheeseTimer) { clearInterval(cheeseTimer); cheeseTimer = null; }
     var hero = app.querySelector('.brand-hero');
     var layer = document.getElementById('oq-holes');
     if (!hero || !layer) return;
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    var last = { x: -999, y: -999 };
-    var active = [];           // live holes: { x, y, r }
-    var GAP = 7;               // minimum spacing between hole edges
+    var active = [];   // live holes: { x, y, r }
+    var GAP = 8;       // minimum spacing between hole edges
 
-    hero.addEventListener('mousemove', function (e) {
+    function spawnOne() {
       var rect = hero.getBoundingClientRect();
-      var x = e.clientX - rect.left;
-      var y = e.clientY - rect.top;
-      // Throttle by cursor travel so we don't test on every pixel.
-      if (Math.hypot(x - last.x, y - last.y) < 28) return;
-      last.x = x; last.y = y;
-
       // Wildly varied size: mostly small, but ~28% are big holes (3x+ larger).
       var size = Math.random() < 0.28 ? (80 + Math.random() * 95) : (12 + Math.random() * 46);
       var r = size / 2;
 
-      // Never overlap an existing hole — skip this one if it would touch any.
-      for (var i = 0; i < active.length; i++) {
-        var a = active[i];
-        if (Math.hypot(x - a.x, y - a.y) < r + a.r + GAP) return;
+      // Try a handful of random spots; place at the first that touches nothing.
+      for (var attempt = 0; attempt < 12; attempt++) {
+        var x = r + Math.random() * (rect.width - size);
+        var y = r + Math.random() * (rect.height - size);
+        var clear = true;
+        for (var i = 0; i < active.length; i++) {
+          var a = active[i];
+          if (Math.hypot(x - a.x, y - a.y) < r + a.r + GAP) { clear = false; break; }
+        }
+        if (!clear) continue;
+
+        var rec = { x: x, y: y, r: r };
+        active.push(rec);
+        var hole = document.createElement('span');
+        hole.className = 'cheese-hole';
+        hole.style.left = x + 'px';
+        hole.style.top = y + 'px';
+        hole.style.width = size + 'px';
+        hole.style.height = size + 'px';
+        layer.appendChild(hole);
+        hole.addEventListener('animationend', function () {
+          this.remove();
+          var idx = active.indexOf(rec);
+          if (idx > -1) active.splice(idx, 1);
+        });
+        return;
       }
+    }
 
-      var rec = { x: x, y: y, r: r };
-      active.push(rec);
-
-      var hole = document.createElement('span');
-      hole.className = 'cheese-hole';
-      hole.style.left = x + 'px';
-      hole.style.top = y + 'px';
-      hole.style.width = size + 'px';
-      hole.style.height = size + 'px';
-      layer.appendChild(hole);
-      hole.addEventListener('animationend', function () {
-        hole.remove();
-        var idx = active.indexOf(rec);
-        if (idx > -1) active.splice(idx, 1);
-      });
+    hero.addEventListener('mouseenter', function () {
+      if (cheeseTimer) return;
+      spawnOne();
+      cheeseTimer = setInterval(spawnOne, 130);
+    });
+    hero.addEventListener('mouseleave', function () {
+      clearInterval(cheeseTimer); cheeseTimer = null;
     });
   }
 
