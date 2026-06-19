@@ -234,7 +234,7 @@ function buildHome() {
         '</div>' +
         '<div class="brand-hero-inner">' +
           '<span class="eyebrow">Online Queso</span>' +
-          '<h1>Real Talks. Real Tactics. Real eCommerce.</h1>' +
+          '<h1>Real Talks.<br>Real Tactics.<br>Real eCommerce.</h1>' +
           '<p class="brand-lead">A non-standard look inside the minds of the best and brightest in eCommerce — tips, tricks, stories, and free advice. Curated by John Roman, entrepreneur and CEO of BattlBox, for anyone in the industry or looking to get in.</p>' +
           '<div class="brand-cta">' +
             '<a class="btn-primary" href="#oq-newsletter">Subscribe</a>' +
