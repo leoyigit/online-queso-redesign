@@ -14,7 +14,7 @@
 var fs = require('fs');
 var path = require('path');
 var D = require('./data.js');
-var catMeta = D.catMeta, posts = D.posts, SITE = D.SITE, postPath = D.postPath, catPath = D.catPath;
+var catMeta = D.catMeta, posts = D.posts, postPath = D.postPath, catPath = D.catPath;
 
 var ROOT = __dirname;
 var LOAD_MORE_VISIBLE = 9; // category page shows lead + 9, then "Load more"
@@ -364,7 +364,6 @@ function buildArticle(p) {
           '<li>Write down what makes you different — then defend it as you scale.</li>' +
         '</ul>' +
         '<p class="tight">None of it is a secret formula. It’s the discipline to keep doing the obvious things long after the novelty wears off. That’s the part nobody puts in the pitch deck — and it’s the part that actually compounds.</p>' +
-        '<a class="real-link" href="' + esc(SITE + p.url) + '" target="_blank" rel="noopener">Read the full story on onlinequeso.com' + ARROW + '</a>' +
       '</div>' +
       '<div class="author-card-wrap">' +
         '<div class="author-card">' +
