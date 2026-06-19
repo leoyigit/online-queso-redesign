@@ -159,6 +159,17 @@ button { font-family: var(--oq-sans); }
 
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 
+/* Anchor resets — these components are real <a> links in the static build. */
+.card, .lead, .hero-grid, .view-all, .read-cta, .oq-subscribe, .mm-subscribe,
+.brand-hero .btn-primary, .brand-hero .btn-ghost { text-decoration: none; }
+.brand-hero .btn-primary { display: inline-flex; align-items: center; justify-content: center; }
+.oq-subscribe { display: inline-flex; align-items: center; }
+.mm-subscribe { display: block; text-align: center; }
+
+/* Load-more: cards past the initial batch are wrapped + hidden until revealed. */
+.grid-cell { display: contents; }
+.grid-cell.is-hidden { display: none; }
+
 /* ============ BRAND HERO (yellow band) ============ */
 .brand-hero { position: relative; overflow: hidden; background: var(--oq-accent); color: var(--oq-ink); }
 .brand-hero-inner {
@@ -314,6 +325,14 @@ button { font-family: var(--oq-sans); }
 .lead-meta .name { font-weight: 600; color: var(--oq-ink); }
 
 .blog-grid-section { max-width: var(--oq-maxw); margin: 0 auto; padding: 36px 24px 8px; }
+.load-more-wrap { display: flex; justify-content: center; padding: 40px 0 8px; }
+.load-more {
+  display: inline-flex; align-items: center; gap: 9px; cursor: pointer;
+  font-family: var(--oq-sans); font-size: 15px; font-weight: 600; color: var(--oq-ink);
+  background: var(--oq-accent); border: 1px solid var(--oq-ink);
+  border-radius: 999px; padding: 13px 26px; transition: transform .12s ease, box-shadow .12s ease;
+}
+.load-more:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(33,28,20,0.14); }
 
 /* ============ ARTICLE TEMPLATE ============ */
 .article-head { max-width: 760px; margin: 0 auto; padding: 56px 24px 8px; }
